@@ -14,13 +14,21 @@ from azureml.data.dataset_factory import TabularDatasetFactory
 # Data is located at:
 # "https://automlsamplenotebookdata.blob.core.windows.net/automl-sample-notebook-data/bankmarketing_train.csv"
 
-ds = ### YOUR CODE HERE ###
+# import dataset
+from azureml.core import Dataset
+from azureml.data.dataset_factory import DataType
 
+# import dataset from web url
+web_path ='https://automlsamplenotebookdata.blob.core.windows.net/automl-sample-notebook-data/bankmarketing_train.csv'
+ds = Dataset.Tabular.from_delimited_files(path=web_path)
+
+# clean dataset
 x, y = clean_data(ds)
 
-# TODO: Split data into train and test sets.
-
-### YOUR CODE HERE ###a
+# Split data into train and test sets.
+split_size = 0.3
+random_state = 30
+X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = split_size, random_state = random_state)
 
 run = Run.get_context()
 
@@ -49,7 +57,7 @@ def clean_data(data):
     x_df["poutcome"] = x_df.poutcome.apply(lambda s: 1 if s == "success" else 0)
 
     y_df = x_df.pop("y").apply(lambda s: 1 if s == "yes" else 0)
-    
+
 
 def main():
     # Add arguments to script
@@ -67,6 +75,7 @@ def main():
 
     accuracy = model.score(x_test, y_test)
     run.log("Accuracy", np.float(accuracy))
+    return model
 
 if __name__ == '__main__':
     main()
